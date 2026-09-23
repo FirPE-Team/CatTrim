@@ -14,8 +14,8 @@ use std::{
 
 #[derive(Debug, Parser)]
 #[command(
-    name = "InvalidCertificate",
-    about = "Find and remove CAT files that match no PE or INF in an offline image"
+    name = "CatTrim",
+    about = "Trim unused Windows catalog files from an offline image"
 )]
 struct Cli {
     #[command(subcommand)]
@@ -125,7 +125,9 @@ fn run_move(args: MoveArgs) -> Result<bool> {
     let report = scan::scan(&image_root, args.jobs)?;
     print_diagnostics(&report);
     if report.has_errors() && !args.force {
-        eprintln!("Scan errors detected; file operations were not performed. If you accept the risks, please use --force.");
+        eprintln!(
+            "Scan errors detected; file operations were not performed. If you accept the risks, please use --force."
+        );
         return Ok(false);
     }
 
@@ -163,7 +165,9 @@ fn run_delete(args: DeleteArgs) -> Result<bool> {
     let report = scan::scan(&image_root, args.jobs)?;
     print_diagnostics(&report);
     if report.has_errors() && !args.force {
-        eprintln!("Scan errors detected; file operations were not performed. If you accept the risks, please use --force.");
+        eprintln!(
+            "Scan errors detected; file operations were not performed. If you accept the risks, please use --force."
+        );
         return Ok(false);
     }
 
@@ -208,27 +212,27 @@ mod tests {
 
     #[test]
     fn parses_subcommands_and_options() {
-        let cli = Cli::try_parse_from(["InvalidCertificate", "scan", "image", "--log", "out.txt"])
+        let cli = Cli::try_parse_from(["CatTrim", "scan", "image", "--log", "out.txt"])
             .unwrap();
         assert!(matches!(cli.command, Command::Scan(_)));
 
-        let cli = Cli::try_parse_from(["InvalidCertificate", "move", "image", "dest", "--force"])
+        let cli = Cli::try_parse_from(["CatTrim", "move", "image", "dest", "--force"])
             .unwrap();
         assert!(matches!(cli.command, Command::Move(_)));
 
-        let cli = Cli::try_parse_from(["InvalidCertificate", "delete", "image"]).unwrap();
+        let cli = Cli::try_parse_from(["CatTrim", "delete", "image"]).unwrap();
         assert!(matches!(cli.command, Command::Delete(_)));
     }
 
     #[test]
     fn rejects_invalid_option_combinations() {
-        assert!(Cli::try_parse_from(["InvalidCertificate", "move", "image"]).is_err());
-        assert!(Cli::try_parse_from(["InvalidCertificate", "scan", "image", "--force"]).is_err());
+        assert!(Cli::try_parse_from(["CatTrim", "move", "image"]).is_err());
+        assert!(Cli::try_parse_from(["CatTrim", "scan", "image", "--force"]).is_err());
         assert!(
-            Cli::try_parse_from(["InvalidCertificate", "scan", "image", "--jobs", "0"]).is_err()
+            Cli::try_parse_from(["CatTrim", "scan", "image", "--jobs", "0"]).is_err()
         );
         assert!(
-            Cli::try_parse_from(["InvalidCertificate", "move", "image", "dest", "--log", "x",])
+            Cli::try_parse_from(["CatTrim", "move", "image", "dest", "--log", "x",])
                 .is_err()
         );
     }

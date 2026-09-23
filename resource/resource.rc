@@ -1,9 +1,9 @@
-#define VER_COMPANYNAME_STR           "InvalidCertificate\0"
-#define VER_FILEDESCRIPTION_STR       "Check invalid certificate\0"
-#define VER_INTERNALNAME_STR          "InvalidCertificate\0"
+#define VER_COMPANYNAME_STR           "CatTrim\0"
+#define VER_FILEDESCRIPTION_STR       "Trim unused Windows catalog files from an offline image\0"
+#define VER_INTERNALNAME_STR          "CatTrim\0"
 #define VER_LEGALCOPYRIGHT_STR        "Copyright (C) 2026\0"
-#define VER_ORIGINALFILENAME_STR      "InvalidCertificate.exe\0"
-#define VER_PRODUCTNAME_STR           "InvalidCertificate\0"
+#define VER_ORIGINALFILENAME_STR      "CatTrim.exe\0"
+#define VER_PRODUCTNAME_STR           "CatTrim\0"
 
 #define VER_FILEVERSION               1,0,0,0
 #define VER_FILEVERSION_STR           "1.0.0.0\0"
@@ -36,4 +36,4 @@ BEGIN
 END
 
 #define RT_MANIFEST 24
-1 RT_MANIFEST "InvalidCertificate.exe.manifest"
+1 RT_MANIFEST "CatTrim.exe.manifest"
