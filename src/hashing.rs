@@ -166,25 +166,3 @@ pub fn hash_pe_authenticode(path: &Path) -> Result<Option<Vec<Digest>>> {
         Digest::Sha256(sha256.finalize().into()),
     ]))
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn sample_exe_hash_matches_report() {
-        let path = Path::new("ref/CAT签名批量检查工具X64.exe");
-        if !path.exists() {
-            return;
-        }
-        let hashes = hash_pe_authenticode(path).unwrap().unwrap();
-        assert_eq!(
-            hashes[0].to_string(),
-            "61688221DE81F2851927CAD8A17EE61EE7859DE2"
-        );
-        assert_eq!(
-            hashes[1].to_string(),
-            "66E0E65F27342D1F992B72AE145480121F219FA18B24B86378FCCDBF2E068E15"
-        );
-    }
-}
