@@ -20,6 +20,7 @@ pub struct ScanReport {
     pub invalid: Vec<PathBuf>,
     pub parse_errors: Vec<(PathBuf, String)>,
     pub hash_errors: Vec<(PathBuf, String)>,
+    pub hash_warnings: Vec<(PathBuf, String)>,
     pub pe_count: usize,
     pub inf_count: usize,
     pub ignored_count: usize,
@@ -111,12 +112,17 @@ pub fn scan(image_root: &Path, jobs: usize) -> Result<ScanReport> {
                     .extension()
                     .is_some_and(|e| e.eq_ignore_ascii_case("inf"));
                 if is_inf {
-                    return (path.clone(), FileHashResult::Inf, hash_file(path));
+                    return (path.clone(), FileHashResult::Inf, hash_file(path), None);
                 }
                 match hash_pe_authenticode(path) {
-                    Ok(Some(hashes)) => (path.clone(), FileHashResult::Pe, Ok(hashes)),
-                    Ok(None) => (path.clone(), FileHashResult::Ignored, Ok(Vec::new())),
-                    Err(error) => (path.clone(), FileHashResult::Pe, Err(error)),
+                    Ok(Some(hash)) => (
+                        path.clone(),
+                        FileHashResult::Pe,
+                        Ok(hash.digests),
+                        hash.warning,
+                    ),
+                    Ok(None) => (path.clone(), FileHashResult::Ignored, Ok(Vec::new()), None),
+                    Err(error) => (path.clone(), FileHashResult::Pe, Err(error), None),
                 }
             })
             .collect::<Vec<_>>()
@@ -129,7 +135,10 @@ pub fn scan(image_root: &Path, jobs: usize) -> Result<ScanReport> {
         }
     }
     let mut used = HashSet::new();
-    for (path, kind, result) in file_results {
+    for (path, kind, result, warning) in file_results {
+        if let Some(warning) = warning {
+            report.hash_warnings.push((path.clone(), warning));
+        }
         match result {
             Ok(digests) => {
                 match kind {
@@ -147,6 +156,7 @@ pub fn scan(image_root: &Path, jobs: usize) -> Result<ScanReport> {
         }
     }
     report.hash_errors.sort_by(|a, b| a.0.cmp(&b.0));
+    report.hash_warnings.sort_by(|a, b| a.0.cmp(&b.0));
     report.invalid = report
         .cats
         .iter()

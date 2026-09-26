@@ -94,6 +94,7 @@ fn print_diagnostics(report: &scan::ScanReport) {
     eprintln!("Valid CAT: {}", report.cats.len() - report.invalid.len());
     eprintln!("Invalid CAT: {}", report.invalid.len());
     eprintln!("Parse errors: {}", report.parse_errors.len());
+    eprintln!("Hash warnings: {}", report.hash_warnings.len());
     eprintln!(
         "PE: {}, INF: {}, ignored: {}",
         report.pe_count, report.inf_count, report.ignored_count
@@ -103,6 +104,9 @@ fn print_diagnostics(report: &scan::ScanReport) {
     }
     for (path, error) in &report.hash_errors {
         eprintln!("Hash error: {}: {}", path.display(), error);
+    }
+    for (path, warning) in &report.hash_warnings {
+        eprintln!("Hash warning: {}: {}", path.display(), warning);
     }
 }
 
@@ -212,12 +216,10 @@ mod tests {
 
     #[test]
     fn parses_subcommands_and_options() {
-        let cli = Cli::try_parse_from(["CatTrim", "scan", "image", "--log", "out.txt"])
-            .unwrap();
+        let cli = Cli::try_parse_from(["CatTrim", "scan", "image", "--log", "out.txt"]).unwrap();
         assert!(matches!(cli.command, Command::Scan(_)));
 
-        let cli = Cli::try_parse_from(["CatTrim", "move", "image", "dest", "--force"])
-            .unwrap();
+        let cli = Cli::try_parse_from(["CatTrim", "move", "image", "dest", "--force"]).unwrap();
         assert!(matches!(cli.command, Command::Move(_)));
 
         let cli = Cli::try_parse_from(["CatTrim", "delete", "image"]).unwrap();
@@ -228,12 +230,7 @@ mod tests {
     fn rejects_invalid_option_combinations() {
         assert!(Cli::try_parse_from(["CatTrim", "move", "image"]).is_err());
         assert!(Cli::try_parse_from(["CatTrim", "scan", "image", "--force"]).is_err());
-        assert!(
-            Cli::try_parse_from(["CatTrim", "scan", "image", "--jobs", "0"]).is_err()
-        );
-        assert!(
-            Cli::try_parse_from(["CatTrim", "move", "image", "dest", "--log", "x",])
-                .is_err()
-        );
+        assert!(Cli::try_parse_from(["CatTrim", "scan", "image", "--jobs", "0"]).is_err());
+        assert!(Cli::try_parse_from(["CatTrim", "move", "image", "dest", "--log", "x",]).is_err());
     }
 }
